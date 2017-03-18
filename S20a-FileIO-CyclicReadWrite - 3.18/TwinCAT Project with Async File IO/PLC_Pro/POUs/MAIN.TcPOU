@@ -1,0 +1,444 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="MAIN" Id="{3a30a0a3-abd3-490e-a8a5-822670146124}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	power_On_motor_All                   :BOOL :=FALSE;   (*************)
+	power_On_motor_Line                  :BOOL :=FALSE; 
+	power_On_motor_X                     :BOOL :=FALSE; 
+    power_On_motor_Y                     :BOOL :=FALSE; 
+    power_On_motor_Angle                 :BOOL :=FALSE; 
+    power_On_motor_Master                :BOOL :=FALSE; 
+	
+	
+	move_do_Line                         :BOOL :=FALSE;   (*************)
+	move_do_X                            :BOOL :=FALSE;
+	move_do_Y                            :BOOL :=FALSE;
+    move_do_Angle                        :BOOL :=FALSE;
+    move_do_Master                       :BOOL :=FALSE;
+	
+	set_do_Line                         :BOOL :=FALSE;    (*************)
+	set_do_X                            :BOOL :=FALSE;
+	set_do_Y                            :BOOL :=FALSE;
+    set_do_Angle                        :BOOL :=FALSE;
+    set_do_Master                       :BOOL :=FALSE;
+	
+	stop_do_Line                         :BOOL :=FALSE;
+	stop_do_X                            :BOOL :=FALSE;
+	stop_do_Y                            :BOOL :=FALSE;
+    stop_do_Angle                        :BOOL :=FALSE;
+    stop_do_Master                       :BOOL :=FALSE;
+	
+	reset_do_Line                         :BOOL :=FALSE;
+	reset_do_X                            :BOOL :=FALSE;
+	reset_do_Y                            :BOOL :=FALSE;
+    reset_do_Angle                        :BOOL :=FALSE;
+    reset_do_Master                       :BOOL :=FALSE;
+	
+	move_r_INC_motor_Line                 : REAL       :=0;   (****定义运动增量****)
+	move_r_INC_motor_X                    : REAL       :=0;   (****关联到HMI界面****)
+	move_r_INC_motor_Y                    : REAL       :=0;
+	move_r_INC_motor_Angle                : REAL       :=0;
+	move_r_INC_motor_Master               : REAL       :=0;
+	
+	(***定义轴变量***)
+	motor_Line , motor_X , motor_Y , motor_Angle , motor_Master    :axis_ref;  (***定义轴变量***)
+	(*****定义电源控制变量*****)
+	mc_power_Line , mc_power_X , mc_power_Y , mc_power_Angle , mc_power_Master    :mc_power;   
+	(****定义轴增量运动功能块*****)
+	move_r_Line,  move_r_X,  move_r_Y,  move_r_Angle, move_r_Master   :mc_MoveRelative; 
+	(******定义轴当前位置*****)
+	position_Line, position_X, position_Y, 	position_Angle, position_Master  :mc_setposition; 
+	(******定义轴停止*****) 
+    stop_Line, stop_X, stop_Y, 	stop_Angle, stop_Master  :mc_stop;  
+	(******定义轴复位*****)
+    reset_Line, reset_X, reset_Y, reset_Angle, reset_Master  :mc_reset;  
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(***********定义直线电机电源************)
+mc_power_Line(
+	Axis:= motor_Line, 
+	Enable:= power_On_motor_All AND power_On_motor_Line, 
+	Enable_Positive:= TRUE , 
+	Enable_Negative:= TRUE, 
+//	Override:= , 
+//	BufferMode:= , 
+//	Options:= , 
+//	Status=> , 
+//	Busy=> , 
+//	Active=> , 
+//	Error=> , 
+//	ErrorID=> 
+);
+(***********定义X轴电机电源************)
+	mc_power_X(
+	Axis:=motor_X , 
+	Enable:=power_On_motor_All AND  power_On_motor_X, 
+	Enable_Positive:= TRUE, 
+	Enable_Negative:= TRUE, 
+	Override:= , 
+	BufferMode:= , 
+	Options:= , 
+	Status=> , 
+	Busy=> , 
+	Active=> , 
+	Error=> , 
+	ErrorID=> );
+
+(***********定义Y轴电机电源************)	
+	mc_power_Y(
+	Axis:= motor_Y, 
+	Enable:= power_On_motor_All AND power_On_motor_Y, 
+	Enable_Positive:= TRUE , 
+	Enable_Negative:= TRUE , 
+	Override:= , 
+	BufferMode:= , 
+	Options:= , 
+	Status=> , 
+	Busy=> , 
+	Active=> , 
+	Error=> , 
+	ErrorID=> );
+	
+(***********定义摆角电机电源************)	
+	mc_power_Angle(
+	Axis:= motor_Angle, 
+	Enable:=power_On_motor_All AND  power_On_motor_Angle, 
+	Enable_Positive:= TRUE, 
+	Enable_Negative:= TRUE, 
+	Override:= , 
+	BufferMode:= , 
+	Options:= , 
+	Status=> , 
+	Busy=> , 
+	Active=> , 
+	Error=> , 
+	ErrorID=> );
+	
+(***********定义主轴电机电源************)
+	mc_power_Master(
+	Axis:= motor_Master, 
+	Enable:= power_On_motor_All AND   power_On_motor_Master, 
+	Enable_Positive:= TRUE, 
+	Enable_Negative:= TRUE, 
+	Override:= , 
+	BufferMode:= , 
+	Options:= , 
+	Status=> , 
+	Busy=> , 
+	Active=> , 
+	Error=> , 
+	ErrorID=> );
+	
+(***********定义直线电机运动************)
+	move_r_Line(
+	Axis:= motor_X, 
+	Execute:= move_do_X, 
+	Distance:= 1, 
+	Velocity:=1 , 
+	Acceleration:= , 
+	Deceleration:= , 
+	Jerk:= , 
+	BufferMode:= , 
+	Options:= , 
+	Done=> , 
+	Busy=> , 
+	Active=> , 
+	CommandAborted=> , 
+	Error=> , 
+	ErrorID=> );
+	
+(***********定义X轴电机运动************)
+	move_r_X(
+	Axis:= motor_X, 
+	Execute:= move_do_X, 
+	Distance:= aa, 
+	Velocity:= 1, 
+	Acceleration:= , 
+	Deceleration:= , 
+	Jerk:= , 
+	BufferMode:= , 
+	Options:= , 
+	Done=> , 
+	Busy=> , 
+	Active=> , 
+	CommandAborted=> , 
+	Error=> , 
+	ErrorID=> );
+	
+(***********定义Y轴电机运动************)
+	move_r_Y(
+	Axis:= motor_Y, 
+	Execute:= move_do_Y, 
+	Distance:= 1, 
+	Velocity:= 1, 
+	Acceleration:= , 
+	Deceleration:= , 
+	Jerk:= , 
+	BufferMode:= , 
+	Options:= , 
+	Done=> , 
+	Busy=> , 
+	Active=> , 
+	CommandAborted=> , 
+	Error=> , 
+	ErrorID=> );
+	
+(***********定义摆角电机运动************)
+	move_r_Angle(
+	Axis:= motor_Angle, 
+	Execute:= move_do_Angle, 
+	Distance:=1 , 
+	Velocity:= 1, 
+	Acceleration:= , 
+	Deceleration:= , 
+	Jerk:= , 
+	BufferMode:= , 
+	Options:= , 
+	Done=> , 
+	Busy=> , 
+	Active=> , 
+	CommandAborted=> , 
+	Error=> , 
+	ErrorID=> );
+	
+(***********定义主轴电机运动************)
+	move_r_Master(
+	Axis:= motor_Master, 
+	Execute:= move_do_Master, 
+	Distance:=1 , 
+	Velocity:= 1, 
+	Acceleration:= , 
+	Deceleration:= , 
+	Jerk:= , 
+	BufferMode:= , 
+	Options:= , 
+	Done=> , 
+	Busy=> , 
+	Active=> , 
+	CommandAborted=> , 
+	Error=> , 
+	ErrorID=> );
+
+(***********定义直线电机当前位置************)	
+	position_Line(
+	Axis:=motor_Line , 
+	Execute:= set_do_Line, 
+	Position:= 0, 
+	Mode:= , 
+	Options:= , 
+	Done=> , 
+	Busy=> , 
+	Error=> , 
+	ErrorID=> );
+
+(***********定义X轴电机当前位置************)	
+	position_X(
+	Axis:= motor_X , 
+	Execute:= set_do_X , 
+	Position:= 0, 
+	Mode:= , 
+	Options:= , 
+	Done=> , 
+	Busy=> , 
+	Error=> , 
+	ErrorID=> );
+	
+(***********定义y轴电机当前位置************)	
+	position_Y(
+	Axis:= motor_Y , 
+	Execute:= set_do_Y , 
+	Position:= 0, 
+	Mode:= , 
+	Options:= , 
+	Done=> , 
+	Busy=> , 
+	Error=> , 
+	ErrorID=> );
+	
+(***********定义摆角电机当前位置************)	
+	position_Angle(
+	Axis:= motor_Angle , 
+	Execute:= set_do_Angle , 
+	Position:= 0, 
+	Mode:= , 
+	Options:= , 
+	Done=> , 
+	Busy=> , 
+	Error=> , 
+	ErrorID=> );
+	
+(***********定义主轴电机当前位置************)	
+	position_Master(
+	Axis:= motor_Master , 
+	Execute:= set_do_Master , 
+	Position:= 0, 
+	Mode:= , 
+	Options:= , 
+	Done=> , 
+	Busy=> , 
+	Error=> , 
+	ErrorID=> );
+
+(***********定义直线电机停止************)	
+	stop_Line(
+	Axis:= motor_Line , 
+	Execute:= stop_do_Line, 
+	Deceleration:= , 
+	Jerk:= , 
+	Options:= , 
+	Done=> , 
+	Busy=> , 
+	Active=> , 
+	CommandAborted=> , 
+	Error=> , 
+	ErrorID=> );
+	
+	(***********定义X轴电机停止************)	
+	stop_X(
+	Axis:= motor_X , 
+	Execute:= stop_do_X, 
+	Deceleration:= , 
+	Jerk:= , 
+	Options:= , 
+	Done=> , 
+	Busy=> , 
+	Active=> , 
+	CommandAborted=> , 
+	Error=> , 
+	ErrorID=> );
+
+(***********定义Y轴电机停止************)	
+	stop_Y(
+	Axis:= motor_Y , 
+	Execute:= stop_do_Y, 
+	Deceleration:= , 
+	Jerk:= , 
+	Options:= , 
+	Done=> , 
+	Busy=> , 
+	Active=> , 
+	CommandAborted=> , 
+	Error=> , 
+	ErrorID=> );
+	
+(***********定义摆角电机停止************)	
+	stop_Angle(
+	Axis:= motor_Angle , 
+	Execute:= stop_do_Angle, 
+	Deceleration:= , 
+	Jerk:= , 
+	Options:= , 
+	Done=> , 
+	Busy=> , 
+	Active=> , 
+	CommandAborted=> , 
+	Error=> , 
+	ErrorID=> );
+	
+(***********定义主轴电机停止************)	
+	stop_Master(
+	Axis:= motor_Master , 
+	Execute:= stop_do_Master, 
+	Deceleration:= , 
+	Jerk:= , 
+	Options:= , 
+	Done=> , 
+	Busy=> , 
+	Active=> , 
+	CommandAborted=> , 
+	Error=> , 
+	ErrorID=> );
+
+(***********定义直线电机复位************)	
+	reset_Line(
+	Axis:= motor_Line, 
+	Execute:= reset_do_Line, 
+	Done=> , 
+	Busy=> , 
+	Error=> , 
+	ErrorID=> );
+	
+(***********定义X轴电机复位************)	
+	reset_X(
+	Axis:= motor_X, 
+	Execute:= reset_do_X, 
+	Done=> , 
+	Busy=> , 
+	Error=> , 
+	ErrorID=> );
+	
+(***********定义Y轴电机复位************)	
+	reset_Y(
+	Axis:= motor_Y, 
+	Execute:= reset_do_Y, 
+	Done=> , 
+	Busy=> , 
+	Error=> , 
+	ErrorID=> );
+	
+(***********定义摆角电机复位************)	
+	reset_Angle(
+	Axis:= motor_Angle, 
+	Execute:= reset_do_Angle, 
+	Done=> , 
+	Busy=> , 
+	Error=> , 
+	ErrorID=> );
+	
+(***********定义主轴电机复位************)	
+	reset_Master(
+	Axis:= motor_Master, 
+	Execute:= reset_do_Master, 
+	Done=> , 
+	Busy=> , 
+	Error=> , 
+	ErrorID=> );
+	
+	]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="149" Count="0" />
+      <LineId Id="48" Count="11" />
+      <LineId Id="170" Count="0" />
+      <LineId Id="86" Count="0" />
+      <LineId Id="73" Count="12" />
+      <LineId Id="87" Count="0" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="88" Count="12" />
+      <LineId Id="172" Count="0" />
+      <LineId Id="101" Count="14" />
+      <LineId Id="173" Count="0" />
+      <LineId Id="116" Count="12" />
+      <LineId Id="131" Count="0" />
+      <LineId Id="174" Count="0" />
+      <LineId Id="132" Count="15" />
+      <LineId Id="181" Count="35" />
+      <LineId Id="234" Count="0" />
+      <LineId Id="217" Count="16" />
+      <LineId Id="235" Count="17" />
+      <LineId Id="263" Count="0" />
+      <LineId Id="275" Count="0" />
+      <LineId Id="265" Count="9" />
+      <LineId Id="276" Count="11" />
+      <LineId Id="290" Count="11" />
+      <LineId Id="288" Count="0" />
+      <LineId Id="302" Count="10" />
+      <LineId Id="316" Count="11" />
+      <LineId Id="337" Count="0" />
+      <LineId Id="349" Count="0" />
+      <LineId Id="338" Count="0" />
+      <LineId Id="413" Count="24" />
+      <LineId Id="362" Count="0" />
+      <LineId Id="438" Count="26" />
+      <LineId Id="467" Count="14" />
+      <LineId Id="489" Count="0" />
+      <LineId Id="482" Count="6" />
+      <LineId Id="490" Count="35" />
+      <LineId Id="465" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
